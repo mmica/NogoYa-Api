@@ -1,0 +1,85 @@
+<h2 mat-dialog-title class="flex items-center gap-2">
+  <mat-icon class="!text-brand-600">
+    {{ data.mode === 'create' ? 'add_business' : 'edit' }}
+  </mat-icon>
+  {{ data.mode === 'create' ? 'Nuevo comercio' : 'Editar comercio' }}
+</h2>
+
+<mat-divider></mat-divider>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="!pt-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <mat-form-field class="md:col-span-2">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="name" maxlength="150" required />
+        <mat-error *ngIf="form.controls.name.hasError('required')">
+          El nombre es obligatorio.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="md:col-span-2">
+        <mat-label>Slug</mat-label>
+        <input matInput formControlName="slug" maxlength="160"
+               placeholder="ejemplo-en-minusculas" />
+        <mat-hint>Identificador para la URL. No se puede modificar después.</mat-hint>
+        <mat-error *ngIf="form.controls.slug.hasError('pattern')">
+          Sólo minúsculas, números y guiones.
+        </mat-error>
+        <mat-error *ngIf="form.controls.slug.hasError('required')">
+          El slug es obligatorio.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="md:col-span-2">
+        <mat-label>Descripción</mat-label>
+        <textarea matInput formControlName="description" rows="2" maxlength="1000"></textarea>
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Teléfono</mat-label>
+        <input matInput formControlName="phone" maxlength="40" />
+      </mat-form-field>
+
+      <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" maxlength="150" />
+        <mat-error *ngIf="form.controls.email.hasError('email')">
+          Email inválido.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="md:col-span-2">
+        <mat-label>Dirección</mat-label>
+        <input matInput formControlName="address" maxlength="300" />
+      </mat-form-field>
+
+      <mat-form-field class="md:col-span-2">
+        <mat-label>URL del logo</mat-label>
+        <input matInput formControlName="logoUrl" maxlength="500"
+               placeholder="https://..." />
+      </mat-form-field>
+
+      @if (data.mode === 'edit') {
+        <div class="md:col-span-2 flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+          <div>
+            <p class="font-medium text-sm">Comercio activo</p>
+            <p class="text-xs text-slate-500">Los comercios inactivos no se muestran en el marketplace público.</p>
+          </div>
+          <mat-slide-toggle formControlName="isActive" color="primary"></mat-slide-toggle>
+        </div>
+      }
+    </div>
+  </mat-dialog-content>
+
+  <mat-divider></mat-divider>
+
+  <mat-dialog-actions align="end" class="!py-3">
+    <button mat-button mat-dialog-close type="button">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit"
+            [disabled]="form.invalid">
+      <mat-icon>{{ data.mode === 'create' ? 'add' : 'save' }}</mat-icon>
+      {{ data.mode === 'create' ? 'Crear' : 'Guardar cambios' }}
+    </button>
+  </mat-dialog-actions>
+</form>

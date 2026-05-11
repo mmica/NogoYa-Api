@@ -1,0 +1,152 @@
+<div class="mb-4 flex items-center gap-2 text-sm text-slate-500">
+  <a routerLink="/settings" class="hover:underline">Configuración</a>
+  <mat-icon class="!text-base !w-4 !h-4">chevron_right</mat-icon>
+  <span class="text-slate-700">Comercios</span>
+</div>
+
+<header class="mb-6 flex items-end justify-between gap-4 flex-wrap">
+  <div>
+    <h1 class="text-2xl font-semibold">Administrar comercios</h1>
+    <p class="text-slate-600">Creá, editá y deshabilitá los comercios de Nogo-Ya.</p>
+  </div>
+  <button mat-flat-button color="primary" (click)="openCreate()">
+    <mat-icon>add_business</mat-icon>
+    Nuevo comercio
+  </button>
+</header>
+
+<mat-card class="overflow-hidden">
+  <!-- Search bar -->
+  <div class="p-4 border-b flex flex-wrap gap-3 items-center bg-white">
+    <mat-form-field class="flex-1 min-w-[260px] !mb-[-1.25em]">
+      <mat-icon matPrefix class="!text-slate-400">search</mat-icon>
+      <mat-label>Buscar por nombre, slug o descripción</mat-label>
+      <input matInput [formControl]="search" autocomplete="off" />
+      @if (search.value) {
+        <button matSuffix mat-icon-button (click)="search.setValue('')" type="button"
+                matTooltip="Limpiar">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+    <div class="text-sm text-slate-500">
+      @if (result()) {
+        <strong>{{ result()!.totalItems }}</strong> resultado(s)
+      }
+    </div>
+  </div>
+
+  <!-- Loading bar -->
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <!-- Table -->
+  <div class="overflow-x-auto">
+    <table mat-table [dataSource]="result()?.items ?? []" class="w-full">
+
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef class="!font-semibold">Comercio</th>
+        <td mat-cell *matCellDef="let s">
+          <div class="flex items-center gap-3 py-2">
+            <div class="w-9 h-9 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center overflow-hidden flex-shrink-0">
+              @if (s.logoUrl) {
+                <img [src]="s.logoUrl" [alt]="s.name" class="w-full h-full object-cover" />
+              } @else {
+                <mat-icon>storefront</mat-icon>
+              }
+            </div>
+            <div class="min-w-0">
+              <p class="font-medium text-slate-900 truncate">{{ s.name }}</p>
+              <p class="text-xs text-slate-500 truncate">{{ s.slug }}</p>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="contact">
+        <th mat-header-cell *matHeaderCellDef class="!font-semibold">Contacto</th>
+        <td mat-cell *matCellDef="let s" class="text-sm">
+          <div class="text-slate-700">{{ s.email || '—' }}</div>
+          <div class="text-xs text-slate-500">{{ s.phone || '—' }}</div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="products">
+        <th mat-header-cell *matHeaderCellDef class="!font-semibold !text-center">Productos</th>
+        <td mat-cell *matCellDef="let s" class="!text-center">
+          <span class="inline-block min-w-[2rem] px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-700">
+            {{ s.productsCount }}
+          </span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef class="!font-semibold">Estado</th>
+        <td mat-cell *matCellDef="let s">
+          @if (s.isActive) {
+            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Activo
+            </span>
+          } @else {
+            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Inactivo
+            </span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="!font-semibold !text-right">Acciones</th>
+        <td mat-cell *matCellDef="let s" class="!text-right">
+          <button mat-icon-button (click)="openEdit(s)" matTooltip="Editar">
+            <mat-icon class="!text-slate-600">edit</mat-icon>
+          </button>
+          <button mat-icon-button [matMenuTriggerFor]="rowMenu" matTooltip="Más">
+            <mat-icon class="!text-slate-600">more_vert</mat-icon>
+          </button>
+          <mat-menu #rowMenu="matMenu">
+            <button mat-menu-item (click)="toggleActive(s)">
+              <mat-icon>{{ s.isActive ? 'visibility_off' : 'visibility' }}</mat-icon>
+              <span>{{ s.isActive ? 'Desactivar' : 'Activar' }}</span>
+            </button>
+            <button mat-menu-item (click)="remove(s)" class="!text-red-600">
+              <mat-icon class="!text-red-600">delete</mat-icon>
+              <span>Eliminar</span>
+            </button>
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns" class="hover:bg-slate-50"></tr>
+
+      <tr *matNoDataRow>
+        <td [attr.colspan]="columns.length" class="text-center py-10 text-slate-500">
+          @if (loading()) {
+            Cargando…
+          } @else if (search.value) {
+            Ningún comercio coincide con "<strong>{{ search.value }}</strong>".
+          } @else {
+            <div class="flex flex-col items-center gap-2">
+              <mat-icon class="!text-5xl !w-16 !h-16 !text-slate-300">storefront</mat-icon>
+              <p>Todavía no hay comercios.</p>
+              <button mat-flat-button color="primary" (click)="openCreate()">
+                <mat-icon>add_business</mat-icon> Crear el primer comercio
+              </button>
+            </div>
+          }
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- Paginator -->
+  <mat-paginator class="!border-t"
+    [length]="result()?.totalItems ?? 0"
+    [pageIndex]="(result()?.page ?? 1) - 1"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[25]"
+    (page)="onPage($event)">
+  </mat-paginator>
+</mat-card>

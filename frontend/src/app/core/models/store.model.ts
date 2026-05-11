@@ -20,3 +20,20 @@ export interface CreateStorePayload {
   phone?: string | null;
   email?: string | null;
 }
+
+export interface UpdateStorePayload {
+  name: string;
+  description?: string | null;
+  logoUrl?: string | null;
+  address?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  isActive: boolean;
+}
+
+export interface StoreFilter {
+  search?: string;
+  isActive?: boolean;
+  page?: number;
+  pageSize?: number;
+}

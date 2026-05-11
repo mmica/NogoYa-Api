@@ -1,0 +1,32 @@
+<header class="mb-6">
+  <h1 class="text-2xl font-semibold">Productos</h1>
+  <p class="text-slate-600">Explorá todos los productos publicados en Nogo-Ya.</p>
+</header>
+<div class="flex flex-wrap gap-3 mb-5">
+  <mat-form-field class="flex-1 min-w-[240px]">
+    <mat-label>Buscar</mat-label>
+    <input matInput placeholder="Ej: manzanas, panificados…" [formControl]="search" />
+  </mat-form-field>
+  <mat-checkbox [formControl]="onSale" class="self-center">Sólo con descuento</mat-checkbox>
+</div>
+
+@if (loading()) {
+  <div class="flex justify-center py-10"><mat-spinner diameter="40"></mat-spinner></div>
+} @else {
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    @for (p of result()?.items ?? []; track p.id) {
+      <app-product-card [product]="p"></app-product-card>
+    } @empty {
+      <p class="text-slate-500">No encontramos productos con esos filtros.</p>
+    }
+  </div>
+  @if ((result()?.totalItems ?? 0) > 0) {
+    <mat-paginator class="mt-4 bg-transparent"
+      [length]="result()!.totalItems"
+      [pageIndex]="(result()!.page - 1)"
+      [pageSize]="result()!.pageSize"
+      [pageSizeOptions]="[12, 24, 48]"
+      (page)="onPage($event)">
+    </mat-paginator>
+  }
+}

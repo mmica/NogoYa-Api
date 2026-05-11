@@ -11,3 +11,12 @@ public record CreateStoreDto(
 public record UpdateStoreDto(
     string Name, string? Description, string? LogoUrl,
     string? Address, string? Phone, string? Email, bool IsActive);
+
+/// <summary>
+/// Filter for paginated store search. PageSize is server-capped (see StoreService).
+/// </summary>
+public record StoreFilterDto(
+    string? Search,
+    bool? IsActive,
+    int Page = 1,
+    int PageSize = 25);

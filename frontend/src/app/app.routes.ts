@@ -14,7 +14,8 @@ export const routes: Routes = [
       { path: 'cart', loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent), title: 'Mi carrito · Nogo-Ya' },
       { path: 'checkout', loadComponent: () => import('./features/cart/checkout.component').then(m => m.CheckoutComponent), title: 'Finalizar compra · Nogo-Ya' },
       { path: 'settings', loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent), title: 'Configuración · Nogo-Ya' },
-      { path: 'settings/import-products', loadComponent: () => import('./features/settings/import-products.component').then(m => m.ImportProductsComponent), title: 'Importar productos · Nogo-Ya' }
+      { path: 'settings/import-products', loadComponent: () => import('./features/settings/import-products.component').then(m => m.ImportProductsComponent), title: 'Importar productos · Nogo-Ya' },
+      { path: 'settings/stores', loadComponent: () => import('./features/settings/stores/stores.component').then(m => m.StoresComponent), title: 'Manage stores · Nogo-Ya' }
     ]
   },
   { path: '**', redirectTo: 'home' }
