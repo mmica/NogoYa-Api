@@ -1,0 +1,13 @@
+**/bin
+**/obj
+**/.vs
+**/.vscode
+**/node_modules
+**/*.log
+**/.idea
+**/.DS_Store
+**/Dockerfile
+**/.dockerignore
+**/.github
+**/logs
+**/*.user
