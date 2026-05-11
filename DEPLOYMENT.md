@@ -1,115 +1,115 @@
-# Deploy de Nogo-Ya
+# Nogo-Ya Deployment
 
-Arquitectura de hosting:
+Hosting architecture:
 
-| Capa      | Plataforma           | Plan free | Notas                                     |
-|-----------|----------------------|-----------|-------------------------------------------|
-| Frontend  | **Vercel**           | Sí        | Angular SPA estático                      |
-| Backend   | **Render** (Docker)  | Sí        | .NET 10 corriendo en contenedor           |
-| Database  | **Render Postgres**  | Sí (90d)  | En la misma región que el backend         |
-| CI/CD     | **GitHub Actions**   | Sí        | CI por PR + CD a main                     |
+| Layer     | Platform             | Free tier | Notes                                       |
+|-----------|----------------------|-----------|---------------------------------------------|
+| Frontend  | **Vercel**           | Yes       | Static Angular SPA                          |
+| Backend   | **Render** (Docker)  | Yes       | .NET 10 running in a container              |
+| Database  | **Render Postgres**  | Yes (90d) | Same region as the backend                  |
+| CI/CD     | **GitHub Actions**   | Yes       | CI on every PR + CD to main                 |
 
-> **Por qué no todo en Vercel:** Vercel no soporta runtimes .NET ni hosting de Postgres. Renta dos plataformas, pero los dos free tiers cubren el MVP sin tarjeta.
-
----
-
-## Pre-requisitos
-
-1. Cuenta en [GitHub](https://github.com), [Vercel](https://vercel.com) y [Render](https://render.com).
-2. Repo de GitHub con este código (público o privado, ambos funcionan).
+> **Why not everything on Vercel:** Vercel does not support .NET runtimes or Postgres hosting. It means renting two platforms, but both free tiers cover the MVP without requiring a credit card.
 
 ---
 
-## Paso 1 — Subir a GitHub
+## Prerequisites
+
+1. Accounts on [GitHub](https://github.com), [Vercel](https://vercel.com) and [Render](https://render.com).
+2. A GitHub repository with this codebase (public or private, both work).
+
+---
+
+## Step 1 — Push to GitHub
 
 ```bash
 git init
 git add .
 git commit -m "Initial: Nogo-Ya MVP"
 git branch -M main
-git remote add origin git@github.com:TU_USUARIO/nogoya.git
+git remote add origin git@github.com:YOUR_USERNAME/nogoya.git
 git push -u origin main
 ```
 
 ---
 
-## Paso 2 — Provisionar backend + DB en Render
+## Step 2 — Provision the backend + DB on Render
 
-1. En Render dashboard → **New → Blueprint**.
-2. Conectá tu repo de GitHub.
-3. Render detecta `render.yaml` y propone:
-   - `nogoya-api` (web service Docker)
+1. Render dashboard → **New → Blueprint**.
+2. Connect your GitHub repository.
+3. Render detects `render.yaml` and proposes:
+   - `nogoya-api` (Docker web service)
    - `nogoya-db` (Postgres)
-4. Hacé clic en **Apply**. Render:
-   - Crea la base de datos.
-   - Cablea automáticamente `DATABASE_URL` al servicio web.
-   - Buildea la imagen desde `backend/Dockerfile`.
-   - Aplica las migraciones (corren al startup).
-5. Cuando aparezca como **live**, copiá la URL pública (algo como `https://nogoya-api.onrender.com`).
+4. Click **Apply**. Render will:
+   - Create the database.
+   - Automatically wire `DATABASE_URL` into the web service.
+   - Build the image from `backend/Dockerfile`.
+   - Apply migrations (they run on startup).
+5. Once it shows as **live**, copy the public URL (something like `https://nogoya-api.onrender.com`).
 
-> **Importante:** después del primer deploy editá la env var `Cors__AllowedOrigins` en Render con la URL final de Vercel (ver Paso 3).
+> **Important:** after the first deploy, edit the `Cors__AllowedOrigins` env var in Render with the final Vercel URL (see Step 3).
 
 ---
 
-## Paso 3 — Frontend en Vercel
+## Step 3 — Frontend on Vercel
 
-1. Vercel dashboard → **Add New → Project** → importá el mismo repo.
+1. Vercel dashboard → **Add New → Project** → import the same repository.
 2. **Root Directory:** `frontend`.
-3. **Framework Preset:** Other (queda detectado por `vercel.json`).
-4. **Environment Variables** → agregá:
+3. **Framework Preset:** Other (detected automatically by `vercel.json`).
+4. **Environment Variables** → add:
    - `NG_APP_API_BASE_URL` = `https://nogoya-api.onrender.com/api/v1`
-5. Hacé clic en **Deploy**.
-6. Cuando termine, copiá la URL final (ej. `https://nogoya.vercel.app`).
-7. Volvé a Render → service `nogoya-api` → **Environment** → seteá:
+5. Click **Deploy**.
+6. When it finishes, copy the final URL (e.g. `https://nogoya.vercel.app`).
+7. Go back to Render → service `nogoya-api` → **Environment** → set:
    - `Cors__AllowedOrigins` = `https://nogoya.vercel.app`
-8. Render redeploya automáticamente con la nueva CORS.
+8. Render redeploys automatically with the new CORS configuration.
 
 ---
 
-## Paso 4 — Conectar GitHub Actions
+## Step 4 — Wire up GitHub Actions
 
-En GitHub: **Settings → Secrets and variables → Actions → New repository secret**.
+In GitHub: **Settings → Secrets and variables → Actions → New repository secret**.
 
-| Secret                    | Cómo obtenerlo                                                                 |
-|---------------------------|--------------------------------------------------------------------------------|
-| `VERCEL_TOKEN`            | Vercel → Account Settings → Tokens                                             |
-| `VERCEL_ORG_ID`           | `vercel link` localmente → `.vercel/project.json` (campo `orgId`)              |
-| `VERCEL_PROJECT_ID`       | Mismo archivo, campo `projectId`                                               |
-| `RENDER_DEPLOY_HOOK_URL`  | Render → service → Settings → Deploy Hook                                      |
-| `RENDER_API_KEY`          | Render → Account Settings → API Keys (para esperar el deploy)                  |
-| `RENDER_SERVICE_ID`       | URL del servicio: `https://dashboard.render.com/web/srv-XXXXX` → copia `srv-…` |
+| Secret                    | How to obtain it                                                                |
+|---------------------------|---------------------------------------------------------------------------------|
+| `VERCEL_TOKEN`            | Vercel → Account Settings → Tokens                                              |
+| `VERCEL_ORG_ID`           | Run `vercel link` locally → `.vercel/project.json` (`orgId` field)              |
+| `VERCEL_PROJECT_ID`       | Same file, `projectId` field                                                    |
+| `RENDER_DEPLOY_HOOK_URL`  | Render → service → Settings → Deploy Hook                                       |
+| `RENDER_API_KEY`          | Render → Account Settings → API Keys (used to poll the deploy status)           |
+| `RENDER_SERVICE_ID`       | Service URL: `https://dashboard.render.com/web/srv-XXXXX` → copy the `srv-...`  |
 
-Los workflows quedan armados así:
+The workflows are wired as follows:
 
-- `.github/workflows/ci.yml` corre en cada PR y push a `main`: build + test del lado que cambió.
-- `.github/workflows/deploy.yml` se dispara cuando CI pasa en `main`: deploya a Vercel y dispara el hook de Render.
+- `.github/workflows/ci.yml` runs on every PR and push to `main`: build + test the side that changed.
+- `.github/workflows/deploy.yml` triggers when CI passes on `main`: deploys to Vercel and fires the Render deploy hook.
 
 ---
 
-## Paso 5 — Verificación
+## Step 5 — Verification
 
 1. `https://nogoya-api.onrender.com/health` → `{ "status": "ok", "time": "..." }`
-2. `https://nogoya-api.onrender.com/swagger` → UI de Swagger.
-3. `https://nogoya.vercel.app` → frontend cargando productos desde el backend.
+2. `https://nogoya-api.onrender.com/swagger` → Swagger UI.
+3. `https://nogoya.vercel.app` → frontend loading products from the backend.
 
 ---
 
-## Tips operativos
+## Operational tips
 
-- **Cold starts en Render free:** después de 15 minutos sin tráfico el contenedor duerme. La primera petición tarda ~30s. En producción real → upgrade a `starter` ($7/mes).
-- **Postgres free dura 90 días.** Render avisa antes; o pasás a paid o migrás a Neon/Supabase y actualizás `DATABASE_URL`.
-- **Logs**: Render → service → Logs (stdout vía Serilog).
-- **Migraciones nuevas**: agregar con `dotnet ef migrations add NombreMigracion -p src/NogoYa.Infrastructure -s src/NogoYa.API`. Se aplican solas en el siguiente deploy gracias al `MigrateAsync()` en startup.
-- **Rollback**: Render → service → Deploys → Rollback. Vercel: cualquier deploy preview se puede promover.
+- **Cold starts on Render free:** after 15 minutes without traffic the container sleeps. The first request takes ~30s. For real production → upgrade to `starter` ($7/month).
+- **Postgres free lasts 90 days.** Render warns you in advance; either move to a paid plan or migrate to Neon/Supabase and update `DATABASE_URL`.
+- **Logs:** Render → service → Logs (stdout via Serilog).
+- **New migrations:** add them with `dotnet ef migrations add MigrationName -p src/NogoYa.Infrastructure -s src/NogoYa.API`. They are applied automatically on the next deploy thanks to `MigrateAsync()` at startup.
+- **Rollback:** Render → service → Deploys → Rollback. Vercel: any preview deploy can be promoted to production.
 
 ---
 
 ## Troubleshooting
 
-| Síntoma                                           | Causa probable                                       | Solución                                          |
-|---------------------------------------------------|------------------------------------------------------|---------------------------------------------------|
-| 500 al llamar al API desde Vercel                 | CORS mal configurado                                 | Setear `Cors__AllowedOrigins` en Render           |
-| Frontend muestra `localhost` en producción        | `NG_APP_API_BASE_URL` no seteada en Vercel           | Project Settings → Environment Variables          |
-| `relation "stores" does not exist`                | Las migrations no corrieron                           | Ver logs del primer deploy; revisar `DATABASE_URL`|
-| Build de Docker falla en `dotnet restore`         | `NogoYa.sln` no incluye los 4 proyectos              | Verificar paths en la solution                    |
-| Render no se redeploya tras push                  | `autoDeploy` desactivado / branch incorrecta         | Render → service → Settings → Auto-Deploy = Yes   |
+| Symptom                                            | Likely cause                                          | Fix                                                |
+|----------------------------------------------------|-------------------------------------------------------|----------------------------------------------------|
+| 500 when calling the API from Vercel               | CORS misconfigured                                    | Set `Cors__AllowedOrigins` in Render               |
+| Frontend points to `localhost` in production       | `NG_APP_API_BASE_URL` not set in Vercel               | Project Settings → Environment Variables           |
+| `relation "stores" does not exist`                 | Migrations did not run                                | Check first-deploy logs; verify `DATABASE_URL`     |
+| Docker build fails on `dotnet restore`             | `NogoYa.sln` does not include all four projects       | Verify project paths in the solution               |
+| Render does not redeploy on push                   | `autoDeploy` disabled / wrong branch                  | Render → service → Settings → Auto-Deploy = Yes    |
