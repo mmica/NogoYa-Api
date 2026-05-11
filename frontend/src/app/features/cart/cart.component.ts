@@ -1,0 +1,68 @@
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDividerModule } from '@angular/material/divider';
+import { FormsModule } from '@angular/forms';
+import { CartService } from '@core/services/cart.service';
+
+@Component({
+  selector: 'app-cart',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink, MatButtonModule, MatIconModule, MatDividerModule],
+  template: `
+    <h1 class="text-2xl font-semibold mb-4">Mi carrito</h1>
+    @if (cart.lines().length === 0) {
+      <div class="bg-white rounded-xl p-10 text-center shadow-sm">
+        <mat-icon class="!text-5xl !text-slate-300 !w-16 !h-16">shopping_cart</mat-icon>
+        <p class="text-slate-600 mt-2">Todavía no agregaste productos.</p>
+        <a mat-flat-button color="primary" routerLink="/products" class="mt-4">Ver productos</a>
+      </div>
+    } @else {
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section class="lg:col-span-2 bg-white rounded-xl shadow-sm divide-y">
+          @for (line of cart.lines(); track line.product.id) {
+            <div class="flex items-center gap-3 p-4">
+              <div class="w-16 h-16 bg-slate-100 rounded flex items-center justify-center">
+                @if (line.product.imageUrl) {
+                  <img [src]="line.product.imageUrl" class="w-full h-full object-cover rounded" />
+                } @else {
+                  <mat-icon class="!text-slate-400">shopping_bag</mat-icon>
+                }
+              </div>
+              <div class="flex-1">
+                <p class="font-medium">{{ line.product.name }}</p>
+                <p class="text-xs text-slate-500">{{ line.product.storeName }}</p>
+              </div>
+              <input type="number" min="1" [ngModel]="line.quantity"
+                (ngModelChange)="cart.updateQty(line.product.id, $event)"
+                class="w-16 border rounded px-2 py-1 text-center" />
+              <div class="w-24 text-right font-semibold">
+                {{ (line.product.effectivePrice * line.quantity) | currency:'ARS':'symbol-narrow':'1.0-0' }}
+              </div>
+              <button mat-icon-button (click)="cart.remove(line.product.id)" aria-label="Quitar">
+                <mat-icon class="!text-slate-500">delete</mat-icon>
+              </button>
+            </div>
+          }
+        </section>
+        <aside class="bg-white rounded-xl shadow-sm p-4 h-fit">
+          <h2 class="font-semibold mb-2">Resumen</h2>
+          <div class="flex justify-between text-slate-700 py-2">
+            <span>Productos</span><span>{{ cart.itemCount() }}</span>
+          </div>
+          <mat-divider></mat-divider>
+          <div class="flex justify-between font-semibold text-lg py-3">
+            <span>Total</span>
+            <span>{{ cart.total() | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
+          </div>
+          <a mat-flat-button color="primary" routerLink="/checkout" class="w-full">Finalizar compra</a>
+        </aside>
+      </div>
+    }
+  `
+})
+export class CartComponent {
+  protected readonly cart = inject(CartService);
+}

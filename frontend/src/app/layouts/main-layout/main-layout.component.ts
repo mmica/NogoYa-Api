@@ -1,0 +1,72 @@
+import { Component, inject } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDividerModule } from '@angular/material/divider';
+import { CartService } from '@core/services/cart.service';
+
+@Component({
+  selector: 'app-main-layout',
+  standalone: true,
+  imports: [
+    RouterOutlet, RouterLink, RouterLinkActive,
+    MatToolbarModule, MatButtonModule, MatIconModule, MatBadgeModule,
+    MatMenuModule, MatDividerModule
+  ],
+  template: `
+    <div class="min-h-screen flex flex-col">
+      <mat-toolbar color="primary" class="shadow-md !bg-brand-600 !text-white sticky top-0 z-10">
+        <a routerLink="/home" class="flex items-center gap-2 no-underline text-white">
+          <mat-icon>storefront</mat-icon>
+          <span class="font-semibold text-lg tracking-tight">Nogo-Ya</span>
+        </a>
+        <span class="flex-1"></span>
+
+        <nav class="hidden md:flex items-center gap-1">
+          <a mat-button routerLink="/stores" routerLinkActive="!bg-brand-700" class="text-white">Comercios</a>
+          <a mat-button routerLink="/products" routerLinkActive="!bg-brand-700" class="text-white">Productos</a>
+        </nav>
+
+        <a mat-icon-button routerLink="/cart" aria-label="Carrito" class="text-white">
+          <mat-icon [matBadge]="cart.itemCount()" matBadgeColor="accent"
+                    [matBadgeHidden]="cart.itemCount() === 0">shopping_cart</mat-icon>
+        </a>
+
+        <button mat-icon-button [matMenuTriggerFor]="settingsMenu" aria-label="Configuración" class="text-white">
+          <mat-icon>settings</mat-icon>
+        </button>
+        <mat-menu #settingsMenu="matMenu" xPosition="before">
+          <div class="px-4 pt-2 pb-1 text-xs uppercase tracking-wide text-slate-500">Configuración</div>
+          <a mat-menu-item routerLink="/settings">
+            <mat-icon>tune</mat-icon><span>Panel de configuración</span>
+          </a>
+          <mat-divider></mat-divider>
+          <a mat-menu-item routerLink="/settings/import-products">
+            <mat-icon>upload_file</mat-icon><span>Importar productos</span>
+          </a>
+          <a mat-menu-item routerLink="/stores" disabled>
+            <mat-icon>store</mat-icon><span>Administrar comercios</span>
+          </a>
+          <a mat-menu-item disabled>
+            <mat-icon>receipt_long</mat-icon><span>Historial de auditoría</span>
+          </a>
+        </mat-menu>
+      </mat-toolbar>
+
+      <main class="flex-1 container mx-auto px-4 py-6">
+        <router-outlet></router-outlet>
+      </main>
+
+      <footer class="border-t bg-white py-6 text-center text-sm text-slate-500">
+        © {{ year }} Nogo-Ya · Marketplace local de Nogoyá
+      </footer>
+    </div>
+  `
+})
+export class MainLayoutComponent {
+  protected readonly cart = inject(CartService);
+  protected readonly year = new Date().getFullYear();
+}
