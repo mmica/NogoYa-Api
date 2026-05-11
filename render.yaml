@@ -1,0 +1,32 @@
+# Render Blueprint — provisions backend + database with one click.
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: nogoya-api
+    runtime: docker
+    region: oregon              # Pick the region closest to most of your users.
+    plan: free                  # Upgrade to "starter" for production traffic.
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true            # Re-deploys on every push to the configured branch.
+    branch: main
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nogoya-db
+          property: connectionString
+      - key: Cors__AllowedOrigins
+        # Replace this after Vercel gives you the production URL.
+        # Multiple origins: "https://nogoya.vercel.app,https://www.nogoya.com"
+        sync: false             # Marked secret; set manually in Render UI.
+
+databases:
+  - name: nogoya-db
+    plan: free                  # 256 MB RAM / 1 GB storage / expires after 90 days on free.
+    databaseName: nogoya
+    user: nogoya
+    region: oregon              # MUST match the web service region for low-latency.
