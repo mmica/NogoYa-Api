@@ -19,7 +19,7 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
         b.Property(x => x.Status).HasConversion<string>().HasMaxLength(30).IsRequired();
         b.Property(x => x.Total).HasPrecision(18, 2);
 
-        b.UseXminAsConcurrencyToken();
+        //b.UseXminAsConcurrencyToken();
 
         b.HasIndex(x => x.OrderNumber).IsUnique();
         b.HasIndex(x => x.StoreId);

@@ -11,7 +11,8 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         var asm = Assembly.GetExecutingAssembly();
-        services.AddAutoMapper(asm);
+        // AutoMapper 14+ requires the configuration-delegate signature.
+        services.AddAutoMapper(cfg => cfg.AddMaps(asm));
         services.AddValidatorsFromAssembly(asm);
 
         services.AddScoped<IStoreService, StoreService>();

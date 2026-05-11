@@ -24,7 +24,8 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         b.Property(x => x.Stock).HasDefaultValue(0);
         b.Property(x => x.IsAvailable).HasDefaultValue(true);
 
-        b.UseXminAsConcurrencyToken();
+        //TODO check this for concurrency control, maybe we can use a timestamp or a version number instead of xmin
+        //b.UseXminAsConcurrencyToken();
 
         b.HasIndex(x => x.StoreId);
         b.HasIndex(x => x.Name);

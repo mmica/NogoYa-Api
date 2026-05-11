@@ -60,13 +60,13 @@ builder.Services.AddCors(options =>
 });
 
 // Forwarded headers (Render terminates TLS at the proxy).
-builder.Services.Configure<Microsoft.AspNetCore.HttpOverrides.ForwardedHeadersOptions>(o =>
-{
-    o.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
-                       | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
-    o.KnownNetworks.Clear();
-    o.KnownProxies.Clear();
-});
+//builder.Services.Configure<Microsoft.AspNetCore.HttpOverrides.ForwardedHeadersOptions>(o =>
+//{
+//    o.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
+//                       | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+//    o.KnownNetworks.Clear();
+//    o.KnownProxies.Clear();
+//});
 
 var app = builder.Build();
 
