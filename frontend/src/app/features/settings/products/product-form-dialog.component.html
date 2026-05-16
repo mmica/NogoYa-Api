@@ -10,7 +10,7 @@
 <form [formGroup]="form" (ngSubmit)="submit()">
   <mat-dialog-content class="!pt-4">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-      <mat-form-field appearance="outline" class="md:col-span-2">
+      <mat-form-field class="md:col-span-2">
         <mat-label>Comercio</mat-label>
         <mat-select formControlName="storeId" required>
           @for (s of data.stores; track s.id) {
@@ -23,7 +23,7 @@
         </mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="md:col-span-2">
+      <mat-form-field class="md:col-span-2">
         <mat-label>Nombre</mat-label>
         <input matInput formControlName="name" maxlength="150" required />
         <mat-error *ngIf="form.controls.name.hasError('required')">
@@ -75,12 +75,12 @@
         </div>
       }
 
-      <mat-form-field appearance="outline" class="md:col-span-2">
+      <mat-form-field class="md:col-span-2">
         <mat-label>Descripción</mat-label>
         <textarea matInput formControlName="description" rows="2" maxlength="2000"></textarea>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="md:col-span-2">
+      <mat-form-field class="md:col-span-2">
         <mat-label>URL de la imagen</mat-label>
         <input matInput formControlName="imageUrl" maxlength="500"
                placeholder="https://..." />

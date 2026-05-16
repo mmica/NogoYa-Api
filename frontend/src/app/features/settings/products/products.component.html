@@ -26,7 +26,7 @@
 <mat-card class="overflow-hidden">
   <!-- Filters bar -->
   <div class="p-4 border-b flex flex-wrap gap-3 items-center bg-white">
-    <mat-form-field appearance="outline" class="flex-1 min-w-[240px] !mb-[-1.25em]">
+    <mat-form-field class="flex-1 min-w-[240px] !mb-[-1.25em]">
       <mat-icon matPrefix class="!text-slate-400">search</mat-icon>
       <mat-label>Buscar por nombre, SKU o descripción</mat-label>
       <input matInput [formControl]="search" autocomplete="off" />
@@ -37,7 +37,7 @@
       }
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="min-w-[200px] !mb-[-1.25em]">
+    <mat-form-field class="min-w-[200px] !mb-[-1.25em]">
       <mat-label>Comercio</mat-label>
       <mat-select [formControl]="storeFilter">
         <mat-option [value]="">Todos</mat-option>
@@ -47,7 +47,7 @@
       </mat-select>
     </mat-form-field>
 
-    <mat-form-field appearance="outline" class="min-w-[180px] !mb-[-1.25em]">
+    <mat-form-field class="min-w-[180px] !mb-[-1.25em]">
       <mat-label>Disponibilidad</mat-label>
       <mat-select [formControl]="availabilityFilter">
         <mat-option [value]="">Todos</mat-option>
