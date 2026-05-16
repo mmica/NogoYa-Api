@@ -17,6 +17,14 @@ public class StoresController : ControllerBase
     public async Task<IActionResult> GetAll(CancellationToken ct)
         => (await _service.GetAllAsync(ct)).ToActionResult();
 
+    /// <summary>
+    /// Paginated + searchable store list for the admin panel.
+    /// PageSize is server-capped at 25 regardless of input.
+    /// </summary>
+    [HttpGet("search")]
+    public async Task<IActionResult> Search([FromQuery] StoreFilterDto filter, CancellationToken ct)
+        => (await _service.SearchAsync(filter, ct)).ToActionResult();
+
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken ct)
         => (await _service.GetByIdAsync(id, ct)).ToActionResult();

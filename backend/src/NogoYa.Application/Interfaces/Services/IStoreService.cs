@@ -6,6 +6,7 @@ namespace NogoYa.Application.Interfaces.Services;
 public interface IStoreService
 {
     Task<Result<IReadOnlyList<StoreDto>>> GetAllAsync(CancellationToken ct = default);
+    Task<Result<PagedResult<StoreDto>>> SearchAsync(StoreFilterDto filter, CancellationToken ct = default);
     Task<Result<StoreDto>> GetByIdAsync(Guid id, CancellationToken ct = default);
     Task<Result<StoreDto>> GetBySlugAsync(string slug, CancellationToken ct = default);
     Task<Result<StoreDto>> CreateAsync(CreateStoreDto dto, CancellationToken ct = default);

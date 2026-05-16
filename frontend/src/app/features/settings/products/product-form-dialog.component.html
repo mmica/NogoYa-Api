@@ -1,0 +1,111 @@
+<h2 mat-dialog-title class="flex items-center gap-2">
+  <mat-icon class="!text-brand-600">
+    {{ data.mode === 'create' ? 'add_shopping_cart' : 'edit' }}
+  </mat-icon>
+  {{ data.mode === 'create' ? 'Nuevo producto' : 'Editar producto' }}
+</h2>
+
+<mat-divider></mat-divider>
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-dialog-content class="!pt-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <mat-form-field class="md:col-span-2">
+        <mat-label>Comercio</mat-label>
+        <mat-select formControlName="storeId" required>
+          @for (s of data.stores; track s.id) {
+            <mat-option [value]="s.id">{{ s.name }}</mat-option>
+          }
+        </mat-select>
+        <mat-hint>El comercio dueño del producto. No se puede cambiar luego.</mat-hint>
+        <mat-error *ngIf="form.controls.storeId.hasError('required')">
+          Elegí un comercio.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="md:col-span-2">
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="name" maxlength="150" required />
+        <mat-error *ngIf="form.controls.name.hasError('required')">
+          El nombre es obligatorio.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>SKU</mat-label>
+        <input matInput formControlName="sku" maxlength="80" />
+        <mat-hint>Identificador único dentro del comercio (opcional).</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Stock</mat-label>
+        <input matInput type="number" formControlName="stock" min="0" required />
+        <mat-error *ngIf="form.controls.stock.hasError('min')">
+          El stock no puede ser negativo.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Precio</mat-label>
+        <input matInput type="number" formControlName="price" min="0" step="0.01" required />
+        <span matTextPrefix>$&nbsp;</span>
+        <mat-error *ngIf="form.controls.price.hasError('min')">
+          El precio no puede ser negativo.
+        </mat-error>
+        <mat-error *ngIf="form.controls.price.hasError('required')">
+          El precio es obligatorio.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Descuento</mat-label>
+        <input matInput type="number" formControlName="discountPercent" min="0" max="100" step="0.01" />
+        <span matTextSuffix>&nbsp;%</span>
+        <mat-error *ngIf="form.controls.discountPercent.hasError('min') || form.controls.discountPercent.hasError('max')">
+          El descuento debe estar entre 0 y 100.
+        </mat-error>
+      </mat-form-field>
+
+      @if (effectivePrice() !== null) {
+        <div class="md:col-span-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-sm">
+          <span class="text-amber-800">Precio final con descuento:</span>
+          <strong class="text-amber-900 ml-1">
+            {{ effectivePrice() | currency:'ARS':'symbol-narrow':'1.0-2' }}
+          </strong>
+        </div>
+      }
+
+      <mat-form-field class="md:col-span-2">
+        <mat-label>Descripción</mat-label>
+        <textarea matInput formControlName="description" rows="2" maxlength="2000"></textarea>
+      </mat-form-field>
+
+      <mat-form-field class="md:col-span-2">
+        <mat-label>URL de la imagen</mat-label>
+        <input matInput formControlName="imageUrl" maxlength="500"
+               placeholder="https://..." />
+      </mat-form-field>
+
+      @if (data.mode === 'edit') {
+        <div class="md:col-span-2 flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+          <div>
+            <p class="font-medium text-sm">Disponible para la venta</p>
+            <p class="text-xs text-slate-500">Si está desactivado, no aparece en el listado público.</p>
+          </div>
+          <mat-slide-toggle formControlName="isAvailable" color="primary"></mat-slide-toggle>
+        </div>
+      }
+    </div>
+  </mat-dialog-content>
+
+  <mat-divider></mat-divider>
+
+  <mat-dialog-actions align="end" class="!py-3">
+    <button mat-button mat-dialog-close type="button">Cancelar</button>
+    <button mat-flat-button color="primary" type="submit"
+            [disabled]="form.invalid">
+      <mat-icon>{{ data.mode === 'create' ? 'add' : 'save' }}</mat-icon>
+      {{ data.mode === 'create' ? 'Crear' : 'Guardar cambios' }}
+    </button>
+  </mat-dialog-actions>
+</form>

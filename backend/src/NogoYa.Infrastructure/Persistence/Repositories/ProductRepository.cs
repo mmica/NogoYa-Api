@@ -21,24 +21,34 @@ public class ProductRepository : Repository<Product>, IProductRepository
     public async Task<PagedResult<Product>> SearchAsync(ProductFilterDto filter, CancellationToken ct = default)
     {
         var query = Set.AsNoTracking().Include(p => p.Store).AsQueryable();
+
         if (filter.StoreId.HasValue) query = query.Where(p => p.StoreId == filter.StoreId.Value);
         if (!string.IsNullOrWhiteSpace(filter.Search))
         {
             var term = $"%{filter.Search.Trim()}%";
             query = query.Where(p => EF.Functions.ILike(p.Name, term)
+                || (p.Sku != null && EF.Functions.ILike(p.Sku, term))
                 || (p.Description != null && EF.Functions.ILike(p.Description, term)));
         }
         if (filter.MinPrice.HasValue) query = query.Where(p => p.Price >= filter.MinPrice.Value);
         if (filter.MaxPrice.HasValue) query = query.Where(p => p.Price <= filter.MaxPrice.Value);
         if (filter.OnSale == true) query = query.Where(p => p.DiscountPercent > 0);
-        query = query.Where(p => p.IsAvailable);
+
+        // IsAvailable: null = show all (admin); true/false = filter explicitly.
+        if (filter.IsAvailable.HasValue)
+            query = query.Where(p => p.IsAvailable == filter.IsAvailable.Value);
 
         var total = await query.CountAsync(ct);
-        var page = filter.Page <= 0 ? 1 : filter.Page;
-        var size = filter.PageSize is <= 0 or > 100 ? 20 : filter.PageSize;
         var items = await query.OrderBy(p => p.Name)
-            .Skip((page - 1) * size).Take(size).ToListAsync(ct);
+            .Skip((filter.Page - 1) * filter.PageSize).Take(filter.PageSize)
+            .ToListAsync(ct);
 
-        return new PagedResult<Product> { Items = items, Page = page, PageSize = size, TotalItems = total };
+        return new PagedResult<Product>
+        {
+            Items = items,
+            Page = filter.Page,
+            PageSize = filter.PageSize,
+            TotalItems = total
+        };
     }
 }
