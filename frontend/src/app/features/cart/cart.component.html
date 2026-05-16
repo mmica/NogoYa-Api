@@ -1,49 +1,53 @@
-<h1 class="text-2xl font-semibold mb-4">Mi carrito</h1>
+<h1 class="text-3xl font-semibold tracking-tight text-stone-900 mb-6">Mi carrito</h1>
+
 @if (cart.lines().length === 0) {
-  <div class="bg-white rounded-xl p-10 text-center shadow-sm">
-    <mat-icon class="!text-5xl !text-slate-300 !w-16 !h-16">shopping_cart</mat-icon>
-    <p class="text-slate-600 mt-2">Todavía no agregaste productos.</p>
-    <a mat-flat-button color="primary" routerLink="/products" class="mt-4">Ver productos</a>
+  <div class="bg-white rounded-2xl border border-stone-200 p-12 text-center">
+    <mat-icon class="!text-5xl !text-stone-300 !w-16 !h-16">shopping_cart</mat-icon>
+    <p class="text-stone-600 mt-3">Todavía no agregaste productos.</p>
+    <a mat-flat-button color="primary" routerLink="/products" class="!mt-4">Ver productos</a>
   </div>
 } @else {
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <section class="lg:col-span-2 bg-white rounded-xl shadow-sm divide-y">
+    <section class="lg:col-span-2 bg-white rounded-2xl border border-stone-200 divide-y divide-stone-200">
       @for (line of cart.lines(); track line.product.id) {
         <div class="flex items-center gap-3 p-4">
-          <div class="w-16 h-16 bg-slate-100 rounded flex items-center justify-center">
+          <div class="w-14 h-14 bg-stone-100 rounded-xl flex items-center justify-center overflow-hidden">
             @if (line.product.imageUrl) {
-              <img [src]="line.product.imageUrl" class="w-full h-full object-cover rounded" />
+              <img [src]="line.product.imageUrl" class="w-full h-full object-cover" />
             } @else {
-              <mat-icon class="!text-slate-400">shopping_bag</mat-icon>
+              <mat-icon class="!text-stone-400">shopping_bag</mat-icon>
             }
           </div>
-          <div class="flex-1">
-            <p class="font-medium">{{ line.product.name }}</p>
-            <p class="text-xs text-slate-500">{{ line.product.storeName }}</p>
+          <div class="flex-1 min-w-0">
+            <p class="font-medium text-stone-900 truncate">{{ line.product.name }}</p>
+            <p class="text-xs text-stone-500">{{ line.product.storeName }}</p>
           </div>
           <input type="number" min="1" [ngModel]="line.quantity"
             (ngModelChange)="cart.updateQty(line.product.id, $event)"
-            class="w-16 border rounded px-2 py-1 text-center" />
-          <div class="w-24 text-right font-semibold">
+            class="w-16 border border-stone-300 rounded-lg px-2 py-1 text-center focus:outline-none focus:border-brand-500" />
+          <div class="w-24 text-right font-semibold text-stone-900">
             {{ (line.product.effectivePrice * line.quantity) | currency:'ARS':'symbol-narrow':'1.0-0' }}
           </div>
           <button mat-icon-button (click)="cart.remove(line.product.id)" aria-label="Quitar">
-            <mat-icon class="!text-slate-500">delete</mat-icon>
+            <mat-icon class="!text-stone-500">delete</mat-icon>
           </button>
         </div>
       }
     </section>
-    <aside class="bg-white rounded-xl shadow-sm p-4 h-fit">
-      <h2 class="font-semibold mb-2">Resumen</h2>
-      <div class="flex justify-between text-slate-700 py-2">
+
+    <aside class="bg-white rounded-2xl border border-stone-200 p-5 h-fit">
+      <h2 class="font-medium text-stone-900 mb-3">Resumen</h2>
+      <div class="flex justify-between text-stone-700 py-2 text-sm">
         <span>Productos</span><span>{{ cart.itemCount() }}</span>
       </div>
       <mat-divider></mat-divider>
-      <div class="flex justify-between font-semibold text-lg py-3">
+      <div class="flex justify-between font-semibold text-lg py-3 text-stone-900">
         <span>Total</span>
         <span>{{ cart.total() | currency:'ARS':'symbol-narrow':'1.0-0' }}</span>
       </div>
-      <a mat-flat-button color="primary" routerLink="/checkout" class="w-full">Finalizar compra</a>
+      <a mat-flat-button color="primary" routerLink="/checkout" class="w-full">
+        Finalizar compra
+      </a>
     </aside>
   </div>
 }

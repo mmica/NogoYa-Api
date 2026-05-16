@@ -1,4 +1,4 @@
-<h2 mat-dialog-title class="flex items-center gap-2">
+<h2 mat-dialog-title class="flex items-center gap-2 !text-stone-900">
   <mat-icon class="!text-brand-600">
     {{ data.mode === 'create' ? 'add_shopping_cart' : 'edit' }}
   </mat-icon>
@@ -31,13 +31,13 @@
         </mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field>
         <mat-label>SKU</mat-label>
         <input matInput formControlName="sku" maxlength="80" />
         <mat-hint>Identificador único dentro del comercio (opcional).</mat-hint>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field>
         <mat-label>Stock</mat-label>
         <input matInput type="number" formControlName="stock" min="0" required />
         <mat-error *ngIf="form.controls.stock.hasError('min')">
@@ -45,7 +45,7 @@
         </mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field>
         <mat-label>Precio</mat-label>
         <input matInput type="number" formControlName="price" min="0" step="0.01" required />
         <span matTextPrefix>$&nbsp;</span>
@@ -57,7 +57,7 @@
         </mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline">
+      <mat-form-field>
         <mat-label>Descuento</mat-label>
         <input matInput type="number" formControlName="discountPercent" min="0" max="100" step="0.01" />
         <span matTextSuffix>&nbsp;%</span>
@@ -67,9 +67,9 @@
       </mat-form-field>
 
       @if (effectivePrice() !== null) {
-        <div class="md:col-span-2 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-sm">
-          <span class="text-amber-800">Precio final con descuento:</span>
-          <strong class="text-amber-900 ml-1">
+        <div class="md:col-span-2 bg-brand-50 border border-brand-100 rounded-xl px-3 py-2 text-sm">
+          <span class="text-brand-800">Precio final con descuento:</span>
+          <strong class="text-brand-900 ml-1">
             {{ effectivePrice() | currency:'ARS':'symbol-narrow':'1.0-2' }}
           </strong>
         </div>
@@ -87,10 +87,10 @@
       </mat-form-field>
 
       @if (data.mode === 'edit') {
-        <div class="md:col-span-2 flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+        <div class="md:col-span-2 flex items-center justify-between bg-stone-50 rounded-xl border border-stone-200 px-3 py-2">
           <div>
-            <p class="font-medium text-sm">Disponible para la venta</p>
-            <p class="text-xs text-slate-500">Si está desactivado, no aparece en el listado público.</p>
+            <p class="font-medium text-sm text-stone-900">Disponible para la venta</p>
+            <p class="text-xs text-stone-500">Si está desactivado, no aparece en el listado público.</p>
           </div>
           <mat-slide-toggle formControlName="isAvailable" color="primary"></mat-slide-toggle>
         </div>
@@ -102,8 +102,7 @@
 
   <mat-dialog-actions align="end" class="!py-3">
     <button mat-button mat-dialog-close type="button">Cancelar</button>
-    <button mat-flat-button color="primary" type="submit"
-            [disabled]="form.invalid">
+    <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid">
       <mat-icon>{{ data.mode === 'create' ? 'add' : 'save' }}</mat-icon>
       {{ data.mode === 'create' ? 'Crear' : 'Guardar cambios' }}
     </button>

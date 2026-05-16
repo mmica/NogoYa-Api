@@ -1,4 +1,4 @@
-<h2 mat-dialog-title class="flex items-center gap-2">
+<h2 mat-dialog-title class="flex items-center gap-2 !text-stone-900">
   <mat-icon class="!text-brand-600">
     {{ data.mode === 'create' ? 'add_business' : 'edit' }}
   </mat-icon>
@@ -61,10 +61,10 @@
       </mat-form-field>
 
       @if (data.mode === 'edit') {
-        <div class="md:col-span-2 flex items-center justify-between bg-slate-50 rounded-lg px-3 py-2">
+        <div class="md:col-span-2 flex items-center justify-between bg-stone-50 rounded-xl border border-stone-200 px-3 py-2">
           <div>
-            <p class="font-medium text-sm">Comercio activo</p>
-            <p class="text-xs text-slate-500">Los comercios inactivos no se muestran en el marketplace público.</p>
+            <p class="font-medium text-sm text-stone-900">Comercio activo</p>
+            <p class="text-xs text-stone-500">Los comercios inactivos no se muestran en el marketplace público.</p>
           </div>
           <mat-slide-toggle formControlName="isActive" color="primary"></mat-slide-toggle>
         </div>

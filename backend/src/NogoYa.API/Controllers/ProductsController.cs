@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using NogoYa.API.Extensions;
 using NogoYa.Application.DTOs;
+using NogoYa.Application.Interfaces;
 using NogoYa.Application.Interfaces.Services;
 
 namespace NogoYa.API.Controllers;
@@ -20,9 +21,17 @@ public class ProductsController : ControllerBase
 
     private readonly IProductService _service;
     private readonly IProductImportService _importService;
+    private readonly IExcelProductReader _excelReader;
 
-    public ProductsController(IProductService service, IProductImportService importService)
-    { _service = service; _importService = importService; }
+    public ProductsController(
+        IProductService service,
+        IProductImportService importService,
+        IExcelProductReader excelReader)
+    {
+        _service = service;
+        _importService = importService;
+        _excelReader = excelReader;
+    }
 
     [HttpGet]
     public async Task<IActionResult> Search([FromQuery] ProductFilterDto filter, CancellationToken ct)
@@ -52,6 +61,22 @@ public class ProductsController : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
         => (await _service.DeleteAsync(id, ct)).ToActionResult();
+
+    /// <summary>
+    /// Returns the official xlsx template (with headers + sample rows + a
+    /// help sheet) for bulk import. The user downloads it, fills it in and
+    /// uploads back via POST /import.
+    /// </summary>
+    [HttpGet("import/template")]
+    [Produces("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")]
+    public IActionResult DownloadImportTemplate()
+    {
+        var bytes = _excelReader.BuildImportTemplate();
+        return File(
+            bytes,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "nogoya-import-products-template.xlsx");
+    }
 
     [HttpPost("import")]
     [RequestSizeLimit(MaxUploadBytes)]

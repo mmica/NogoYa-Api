@@ -1,36 +1,57 @@
-<section class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-brand-600 to-brand-700 text-white p-10 md:p-16 shadow-sm">
-  <div class="max-w-2xl">
-    <h1 class="text-3xl md:text-5xl font-semibold tracking-tight leading-tight">
-      El marketplace de <span class="text-amber-300">Nogoyá</span>.
+<section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-brand-200 via-brand-100 to-white border border-brand-200 px-8 py-14 md:px-16 md:py-24">
+  <!-- Decorative soft blobs for depth + a touch of warm color from the accents -->
+  <div class="absolute -top-24 -right-16 w-80 h-80 bg-brand-300/40 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute bottom-0 right-1/4 w-72 h-72 bg-honey-100/50 rounded-full blur-3xl pointer-events-none"></div>
+  <div class="absolute -bottom-20 -left-10 w-72 h-72 bg-peach-100/50 rounded-full blur-3xl pointer-events-none"></div>
+
+  <div class="relative max-w-2xl">
+    <span class="inline-flex items-center gap-2 text-xs font-medium tracking-wider uppercase text-brand-800 bg-white/70 backdrop-blur px-3 py-1 rounded-full border border-brand-200">
+      <span class="w-1.5 h-1.5 rounded-full bg-brand-600"></span>
+      Marketplace local
+    </span>
+    <h1 class="mt-5 text-4xl md:text-6xl font-medium tracking-tight leading-[1.05] text-stone-900">
+      Comprá en los comercios <br class="hidden md:block" />
+      de <span class="text-brand-700">Nogoyá</span>.
     </h1>
-    <p class="mt-4 text-lg text-brand-50/90">
-      Comprá en los comercios de tu ciudad. Descubrí ofertas, productos frescos y recibilos donde quieras.
+    <p class="mt-5 text-lg text-stone-700 max-w-xl">
+      Descubrí ofertas, productos frescos y recibilos donde quieras. Sin intermediarios, directo con cada comercio.
     </p>
-    <div class="mt-6 flex flex-wrap gap-3">
-      <a mat-flat-button color="accent" routerLink="/products">
-        <mat-icon>search</mat-icon> Ver productos
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a mat-flat-button color="primary" routerLink="/products">
+        <mat-icon>search</mat-icon>
+        Ver productos
       </a>
-      <a mat-stroked-button routerLink="/stores" class="!text-white !border-white/70">
+      <a mat-stroked-button routerLink="/stores" class="!bg-white/60 backdrop-blur">
         Explorar comercios
       </a>
     </div>
   </div>
 </section>
 
-<section class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-8">
-  <article class="p-6 bg-white rounded-xl shadow-sm">
-    <mat-icon class="!text-brand-600">local_shipping</mat-icon>
-    <h3 class="mt-2 font-semibold">Envíos locales</h3>
-    <p class="text-slate-600 text-sm mt-1">Coordiná la entrega directamente con el comercio.</p>
+<!-- Feature cards: each gets one of the warm accent tints from the palette
+     so the page feels brighter and more inviting. -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-10">
+  <article class="p-6 bg-peach-50 rounded-2xl border border-peach-100 hover:border-peach-500 transition-colors">
+    <div class="w-11 h-11 rounded-xl bg-peach-100 text-peach-700 flex items-center justify-center">
+      <mat-icon>local_shipping</mat-icon>
+    </div>
+    <h3 class="mt-4 font-medium text-stone-900">Envíos locales</h3>
+    <p class="text-stone-700 text-sm mt-1">Coordiná la entrega directamente con el comercio.</p>
   </article>
-  <article class="p-6 bg-white rounded-xl shadow-sm">
-    <mat-icon class="!text-brand-600">local_offer</mat-icon>
-    <h3 class="mt-2 font-semibold">Descuentos reales</h3>
-    <p class="text-slate-600 text-sm mt-1">Promociones publicadas por cada comercio, siempre vigentes.</p>
+
+  <article class="p-6 bg-honey-50 rounded-2xl border border-honey-100 hover:border-honey-500 transition-colors">
+    <div class="w-11 h-11 rounded-xl bg-honey-100 text-honey-700 flex items-center justify-center">
+      <mat-icon>local_offer</mat-icon>
+    </div>
+    <h3 class="mt-4 font-medium text-stone-900">Descuentos reales</h3>
+    <p class="text-stone-700 text-sm mt-1">Promociones publicadas por cada comercio, siempre vigentes.</p>
   </article>
-  <article class="p-6 bg-white rounded-xl shadow-sm">
-    <mat-icon class="!text-brand-600">verified</mat-icon>
-    <h3 class="mt-2 font-semibold">Compra auditada</h3>
-    <p class="text-slate-600 text-sm mt-1">Tu pedido queda registrado con trazabilidad completa.</p>
+
+  <article class="p-6 bg-coral-50 rounded-2xl border border-coral-100 hover:border-coral-500 transition-colors">
+    <div class="w-11 h-11 rounded-xl bg-coral-100 text-coral-700 flex items-center justify-center">
+      <mat-icon>verified</mat-icon>
+    </div>
+    <h3 class="mt-4 font-medium text-stone-900">Compra auditada</h3>
+    <p class="text-stone-700 text-sm mt-1">Tu pedido queda registrado con trazabilidad completa.</p>
   </article>
 </section>
