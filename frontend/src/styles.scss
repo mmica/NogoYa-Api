@@ -5,12 +5,42 @@
 
 @include mat.core();
 
-$nogoya-primary: mat.m2-define-palette(mat.$m2-green-palette, 700);
-$nogoya-accent:  mat.m2-define-palette(mat.$m2-amber-palette, 500);
+// Custom sage palette (mirrors Tailwind `brand.*`).
+$nogoya-sage-palette: (
+  50:  #f5f8ec,
+  100: #e8efd1,
+  200: #d4e2a8,
+  300: #bcd483,
+  400: #a5c46a,
+  500: #88a23f,
+  600: #6f8632,
+  700: #58692a,
+  800: #444f23,
+  900: #34401b,
+  contrast: (
+    50:  #34401b,
+    100: #34401b,
+    200: #34401b,
+    300: #34401b,
+    400: #ffffff,
+    500: #ffffff,
+    600: #ffffff,
+    700: #ffffff,
+    800: #ffffff,
+    900: #ffffff
+  )
+);
+
+$nogoya-primary: mat.m2-define-palette($nogoya-sage-palette, 600);
+$nogoya-accent:  mat.m2-define-palette($nogoya-sage-palette, 400);
 $nogoya-warn:    mat.m2-define-palette(mat.$m2-red-palette);
 
 $nogoya-theme: mat.m2-define-light-theme((
-  color: (primary: $nogoya-primary, accent: $nogoya-accent, warn: $nogoya-warn),
+  color: (
+    primary: $nogoya-primary,
+    accent:  $nogoya-accent,
+    warn:    $nogoya-warn
+  ),
   typography: mat.m2-define-typography-config($font-family: 'Inter, system-ui, sans-serif'),
   density: 0
 ));
@@ -18,7 +48,50 @@ $nogoya-theme: mat.m2-define-light-theme((
 @include mat.all-component-themes($nogoya-theme);
 
 html, body { height: 100%; }
-body { margin: 0; font-family: 'Inter', system-ui, sans-serif; }
+body {
+  margin: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  @apply bg-stone-50 text-stone-900 antialiased;
+}
+
+// Scrollbar.
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb { @apply bg-slate-300 rounded-full; }
-::-webkit-scrollbar-thumb:hover { @apply bg-slate-400; }
+::-webkit-scrollbar-thumb { @apply bg-stone-300 rounded-full; }
+::-webkit-scrollbar-thumb:hover { @apply bg-stone-400; }
+
+// ---------------------------------------------------------------------------
+// Custom form-field look: replaces the default grey "fill" appearance with a
+// white, softly bordered container. Applies globally so every <mat-form-field>
+// without an explicit `appearance` follows the same visual language.
+// ---------------------------------------------------------------------------
+.mat-mdc-form-field {
+  // Use white as the field background instead of the default mdc grey.
+  --mdc-filled-text-field-container-color: #ffffff;
+  --mdc-filled-text-field-disabled-container-color: #fafaf9;       // stone-50
+  --mdc-filled-text-field-hover-state-layer-opacity: 0;
+  --mdc-filled-text-field-focus-state-layer-opacity: 0;
+
+  // Hide the underline ripple — we use a full border instead.
+  .mdc-line-ripple { display: none; }
+
+  // Add a soft border around the whole wrapper.
+  .mat-mdc-text-field-wrapper {
+    border: 1px solid #e7e5e4;             // stone-200
+    border-radius: 12px;
+    transition: border-color 150ms, box-shadow 150ms;
+  }
+
+  &:hover:not(.mat-focused):not(.mat-form-field-invalid)
+    .mat-mdc-text-field-wrapper {
+    border-color: #d6d3d1;                 // stone-300
+  }
+
+  &.mat-focused .mat-mdc-text-field-wrapper {
+    border-color: #88a23f;                 // brand-500 (sage)
+    box-shadow: 0 0 0 3px rgba(136, 162, 63, 0.18);
+  }
+
+  &.mat-form-field-invalid .mat-mdc-text-field-wrapper {
+    border-color: #ef4444;                 // red-500
+  }
+}
