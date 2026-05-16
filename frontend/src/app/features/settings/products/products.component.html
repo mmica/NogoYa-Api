@@ -1,0 +1,201 @@
+<div class="mb-4 flex items-center gap-2 text-sm text-slate-500">
+  <a routerLink="/settings" class="hover:underline">Configuración</a>
+  <mat-icon class="!text-base !w-4 !h-4">chevron_right</mat-icon>
+  <span class="text-slate-700">Productos</span>
+</div>
+
+<header class="mb-6 flex items-end justify-between gap-4 flex-wrap">
+  <div>
+    <h1 class="text-2xl font-semibold">Administrar productos</h1>
+    <p class="text-slate-600">Creá, editá y deshabilitá productos del catálogo.</p>
+  </div>
+  <button mat-flat-button color="primary" (click)="openCreate()" [disabled]="stores().length === 0">
+    <mat-icon>add_shopping_cart</mat-icon>
+    Nuevo producto
+  </button>
+</header>
+
+@if (stores().length === 0 && !loadingStores()) {
+  <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4 text-sm text-amber-900">
+    <mat-icon class="!text-amber-700 align-middle !w-5 !h-5 !text-base">info</mat-icon>
+    Primero tenés que crear al menos un comercio.
+    <a routerLink="/settings/stores" class="underline font-medium ml-1">Crear comercio</a>
+  </div>
+}
+
+<mat-card class="overflow-hidden">
+  <!-- Filters bar -->
+  <div class="p-4 border-b flex flex-wrap gap-3 items-center bg-white">
+    <mat-form-field appearance="outline" class="flex-1 min-w-[240px] !mb-[-1.25em]">
+      <mat-icon matPrefix class="!text-slate-400">search</mat-icon>
+      <mat-label>Buscar por nombre, SKU o descripción</mat-label>
+      <input matInput [formControl]="search" autocomplete="off" />
+      @if (search.value) {
+        <button matSuffix mat-icon-button (click)="search.setValue('')" type="button" matTooltip="Limpiar">
+          <mat-icon>close</mat-icon>
+        </button>
+      }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="min-w-[200px] !mb-[-1.25em]">
+      <mat-label>Comercio</mat-label>
+      <mat-select [formControl]="storeFilter">
+        <mat-option [value]="">Todos</mat-option>
+        @for (s of stores(); track s.id) {
+          <mat-option [value]="s.id">{{ s.name }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="min-w-[180px] !mb-[-1.25em]">
+      <mat-label>Disponibilidad</mat-label>
+      <mat-select [formControl]="availabilityFilter">
+        <mat-option [value]="">Todos</mat-option>
+        <mat-option [value]="true">Solo disponibles</mat-option>
+        <mat-option [value]="false">Solo no disponibles</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="text-sm text-slate-500 ml-auto">
+      @if (result()) {
+        <strong>{{ result()!.totalItems }}</strong> resultado(s)
+      }
+    </div>
+  </div>
+
+  @if (loading()) {
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  }
+
+  <!-- Table -->
+  <div class="overflow-x-auto">
+    <table mat-table [dataSource]="result()?.items ?? []" class="w-full">
+
+      <ng-container matColumnDef="product">
+        <th mat-header-cell *matHeaderCellDef class="!font-semibold">Producto</th>
+        <td mat-cell *matCellDef="let p">
+          <div class="flex items-center gap-3 py-2">
+            <div class="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden flex-shrink-0">
+              @if (p.imageUrl) {
+                <img [src]="p.imageUrl" [alt]="p.name" class="w-full h-full object-cover" />
+              } @else {
+                <mat-icon class="!text-slate-300">shopping_bag</mat-icon>
+              }
+            </div>
+            <div class="min-w-0">
+              <p class="font-medium text-slate-900 truncate">{{ p.name }}</p>
+              <p class="text-xs text-slate-500 truncate">
+                @if (p.sku) { SKU: {{ p.sku }} } @else { <em>sin SKU</em> }
+              </p>
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="store">
+        <th mat-header-cell *matHeaderCellDef class="!font-semibold">Comercio</th>
+        <td mat-cell *matCellDef="let p" class="text-sm text-slate-700">
+          {{ p.storeName }}
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="price">
+        <th mat-header-cell *matHeaderCellDef class="!font-semibold !text-right">Precio</th>
+        <td mat-cell *matCellDef="let p" class="!text-right">
+          @if (p.discountPercent > 0) {
+            <div class="text-xs line-through text-slate-400">
+              {{ p.price | currency:'ARS':'symbol-narrow':'1.0-2' }}
+            </div>
+            <div class="font-semibold text-brand-600">
+              {{ p.effectivePrice | currency:'ARS':'symbol-narrow':'1.0-2' }}
+            </div>
+            <div class="text-[10px] text-amber-700 font-medium">
+              -{{ p.discountPercent | number:'1.0-0' }}%
+            </div>
+          } @else {
+            <div class="font-semibold">{{ p.price | currency:'ARS':'symbol-narrow':'1.0-2' }}</div>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="stock">
+        <th mat-header-cell *matHeaderCellDef class="!font-semibold !text-center">Stock</th>
+        <td mat-cell *matCellDef="let p" class="!text-center">
+          @if (p.stock === 0) {
+            <span class="inline-block px-2 py-0.5 rounded-full text-xs bg-rose-50 text-rose-700">0</span>
+          } @else if (p.stock < 5) {
+            <span class="inline-block px-2 py-0.5 rounded-full text-xs bg-amber-50 text-amber-800">{{ p.stock }}</span>
+          } @else {
+            <span class="inline-block px-2 py-0.5 rounded-full text-xs bg-slate-100 text-slate-700">{{ p.stock }}</span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef class="!font-semibold">Estado</th>
+        <td mat-cell *matCellDef="let p">
+          @if (p.isAvailable) {
+            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Disponible
+            </span>
+          } @else {
+            <span class="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+              <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span> Inactivo
+            </span>
+          }
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef class="!font-semibold !text-right">Acciones</th>
+        <td mat-cell *matCellDef="let p" class="!text-right">
+          <button mat-icon-button (click)="openEdit(p)" matTooltip="Editar">
+            <mat-icon class="!text-slate-600">edit</mat-icon>
+          </button>
+          <button mat-icon-button [matMenuTriggerFor]="rowMenu" matTooltip="Más">
+            <mat-icon class="!text-slate-600">more_vert</mat-icon>
+          </button>
+          <mat-menu #rowMenu="matMenu">
+            <button mat-menu-item (click)="toggleAvailable(p)">
+              <mat-icon>{{ p.isAvailable ? 'visibility_off' : 'visibility' }}</mat-icon>
+              <span>{{ p.isAvailable ? 'Marcar como no disponible' : 'Marcar como disponible' }}</span>
+            </button>
+            <button mat-menu-item (click)="remove(p)" class="!text-red-600">
+              <mat-icon class="!text-red-600">delete</mat-icon>
+              <span>Eliminar</span>
+            </button>
+          </mat-menu>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="columns; sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: columns" class="hover:bg-slate-50"></tr>
+
+      <tr *matNoDataRow>
+        <td [attr.colspan]="columns.length" class="text-center py-10 text-slate-500">
+          @if (loading()) {
+            Cargando…
+          } @else if (search.value || storeFilter.value || availabilityFilter.value !== '') {
+            Ningún producto coincide con los filtros aplicados.
+          } @else {
+            <div class="flex flex-col items-center gap-2">
+              <mat-icon class="!text-5xl !w-16 !h-16 !text-slate-300">shopping_bag</mat-icon>
+              <p>Todavía no hay productos cargados.</p>
+              <button mat-flat-button color="primary" (click)="openCreate()" [disabled]="stores().length === 0">
+                <mat-icon>add_shopping_cart</mat-icon> Crear el primer producto
+              </button>
+            </div>
+          }
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <mat-paginator class="!border-t"
+    [length]="result()?.totalItems ?? 0"
+    [pageIndex]="(result()?.page ?? 1) - 1"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[25]"
+    (page)="onPage($event)">
+  </mat-paginator>
+</mat-card>

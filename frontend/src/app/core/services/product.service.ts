@@ -1,7 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { PagedResult, Product, ProductFilter } from '@core/models/product.model';
+import {
+  CreateProductPayload, PagedResult, Product, ProductFilter, UpdateProductPayload
+} from '@core/models/product.model';
 
 @Injectable({ providedIn: 'root' })
 export class ProductService {
@@ -16,8 +18,23 @@ export class ProductService {
     return this.http.get<PagedResult<Product>>(this.base, { params });
   }
 
-  getById(id: string): Observable<Product> { return this.http.get<Product>(`${this.base}/${id}`); }
+  getById(id: string): Observable<Product> {
+    return this.http.get<Product>(`${this.base}/${id}`);
+  }
+
   getByStore(storeId: string): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.base}/by-store/${storeId}`);
+  }
+
+  create(payload: CreateProductPayload): Observable<Product> {
+    return this.http.post<Product>(this.base, payload);
+  }
+
+  update(id: string, payload: UpdateProductPayload): Observable<Product> {
+    return this.http.put<Product>(`${this.base}/${id}`, payload);
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/${id}`);
   }
 }

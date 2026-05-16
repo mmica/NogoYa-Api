@@ -13,6 +13,17 @@ public record UpdateProductDto(
     string Name, string? Description, string? ImageUrl, string? Sku,
     decimal Price, decimal DiscountPercent, int Stock, bool IsAvailable);
 
+/// <summary>
+/// Filter for paginated product search.
+/// IsAvailable: null = all (admin view), true/false = filter (public lists pass true).
+/// PageSize is server-capped (see ProductService).
+/// </summary>
 public record ProductFilterDto(
-    Guid? StoreId, string? Search, decimal? MinPrice, decimal? MaxPrice,
-    bool? OnSale, int Page = 1, int PageSize = 20);
+    Guid? StoreId,
+    string? Search,
+    decimal? MinPrice,
+    decimal? MaxPrice,
+    bool? OnSale,
+    bool? IsAvailable,
+    int Page = 1,
+    int PageSize = 25);

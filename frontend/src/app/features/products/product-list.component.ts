@@ -1,6 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -15,7 +18,8 @@ import { ProductCardComponent } from './product-card.component';
   selector: 'app-product-list',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule,
+    CommonModule, ReactiveFormsModule, RouterLink,
+    MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatCheckboxModule,
     MatProgressSpinnerModule, MatPaginatorModule,
     ProductCardComponent
@@ -41,6 +45,7 @@ export class ProductListComponent implements OnInit {
         return this.products.search({
           search: this.search.value || undefined,
           onSale: this.onSale.value || undefined,
+          isAvailable: true, // public listing: only show products available for sale
           page: this.page,
           pageSize: this.pageSize
         });

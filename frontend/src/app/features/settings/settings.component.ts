@@ -20,6 +20,7 @@ interface SettingsEntry {
 export class SettingsComponent {
   protected readonly entries: SettingsEntry[] = [
     { label: 'Administrar comercios', description: 'Creá, editá y deshabilitá los comercios.', icon: 'store', route: '/settings/stores' },
+    { label: 'Administrar productos', description: 'Creá, editá y eliminá productos del catálogo.', icon: 'shopping_bag', route: '/settings/products' },
     { label: 'Importar productos', description: 'Cargá tu catálogo desde un archivo .xlsx.', icon: 'upload_file', route: '/settings/import-products' },
     { label: 'Historial de auditoría', description: 'Revisá todos los cambios de precios, stock y pedidos.', icon: 'receipt_long', route: '/settings/audit', disabled: true },
     { label: 'Usuarios y permisos', description: 'Gestioná quién puede operar el sistema.', icon: 'group', route: '/settings/users', disabled: true }
