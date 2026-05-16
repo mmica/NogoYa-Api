@@ -17,9 +17,19 @@ public class ProductService : IProductService
     public ProductService(IUnitOfWork uow, IMapper mapper, ILogger<ProductService> logger)
     { _uow = uow; _mapper = mapper; _logger = logger; }
 
+    // Defensive cap: clients cannot request larger pages than this, regardless of input.
+    private const int MaxPageSize = 25;
+
     public async Task<Result<PagedResult<ProductDto>>> SearchAsync(ProductFilterDto filter, CancellationToken ct = default)
     {
-        var paged = await _uow.Products.SearchAsync(filter, ct);
+        // Normalize page + cap pageSize server-side.
+        var safeFilter = filter with
+        {
+            Page = filter.Page <= 0 ? 1 : filter.Page,
+            PageSize = filter.PageSize is <= 0 or > MaxPageSize ? MaxPageSize : filter.PageSize
+        };
+
+        var paged = await _uow.Products.SearchAsync(safeFilter, ct);
         var items = _mapper.Map<IReadOnlyList<ProductDto>>(paged.Items);
         return Result.Success(new PagedResult<ProductDto>
         {

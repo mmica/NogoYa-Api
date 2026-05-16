@@ -13,6 +13,28 @@ export interface Product {
   isAvailable: boolean;
 }
 
+export interface CreateProductPayload {
+  storeId: string;
+  name: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  sku?: string | null;
+  price: number;
+  discountPercent: number;
+  stock: number;
+}
+
+export interface UpdateProductPayload {
+  name: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  sku?: string | null;
+  price: number;
+  discountPercent: number;
+  stock: number;
+  isAvailable: boolean;
+}
+
 export interface PagedResult<T> {
   items: T[];
   page: number;
@@ -29,6 +51,7 @@ export interface ProductFilter {
   minPrice?: number;
   maxPrice?: number;
   onSale?: boolean;
+  isAvailable?: boolean;
   page?: number;
   pageSize?: number;
 }

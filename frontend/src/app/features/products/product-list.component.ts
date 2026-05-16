@@ -1,6 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -15,45 +18,13 @@ import { ProductCardComponent } from './product-card.component';
   selector: 'app-product-list',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule,
+    CommonModule, ReactiveFormsModule, RouterLink,
+    MatButtonModule, MatIconModule,
     MatFormFieldModule, MatInputModule, MatCheckboxModule,
     MatProgressSpinnerModule, MatPaginatorModule,
     ProductCardComponent
   ],
-  template: `
-    <header class="mb-6">
-      <h1 class="text-2xl font-semibold">Productos</h1>
-      <p class="text-slate-600">Explorá todos los productos publicados en Nogo-Ya.</p>
-    </header>
-    <div class="flex flex-wrap gap-3 mb-5">
-      <mat-form-field appearance="outline" class="flex-1 min-w-[240px]">
-        <mat-label>Buscar</mat-label>
-        <input matInput placeholder="Ej: manzanas, panificados…" [formControl]="search" />
-      </mat-form-field>
-      <mat-checkbox [formControl]="onSale" class="self-center">Sólo con descuento</mat-checkbox>
-    </div>
-
-    @if (loading()) {
-      <div class="flex justify-center py-10"><mat-spinner diameter="40"></mat-spinner></div>
-    } @else {
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        @for (p of result()?.items ?? []; track p.id) {
-          <app-product-card [product]="p"></app-product-card>
-        } @empty {
-          <p class="text-slate-500">No encontramos productos con esos filtros.</p>
-        }
-      </div>
-      @if ((result()?.totalItems ?? 0) > 0) {
-        <mat-paginator class="mt-4 bg-transparent"
-          [length]="result()!.totalItems"
-          [pageIndex]="(result()!.page - 1)"
-          [pageSize]="result()!.pageSize"
-          [pageSizeOptions]="[12, 24, 48]"
-          (page)="onPage($event)">
-        </mat-paginator>
-      }
-    }
-  `
+  templateUrl: './product-list.component.html'
 })
 export class ProductListComponent implements OnInit {
   private readonly products = inject(ProductService);
@@ -74,6 +45,7 @@ export class ProductListComponent implements OnInit {
         return this.products.search({
           search: this.search.value || undefined,
           onSale: this.onSale.value || undefined,
+          isAvailable: true, // public listing: only show products available for sale
           page: this.page,
           pageSize: this.pageSize
         });

@@ -1,5 +1,6 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using NogoYa.API.Extensions;
 using NogoYa.API.Middleware;
@@ -12,9 +13,16 @@ using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ---- Local override (per-developer, gitignored) -----------------------------
+// `appsettings.Local.json` is the standard pattern for machine-specific values
+// (connection strings, API keys, etc). It is NEVER committed; copy
+// `appsettings.Local.json.example` and edit it locally.
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
 // ---- Connection string resolution -------------------------------------------
-// In production we accept a single DATABASE_URL env var (Render / Neon style)
-// and translate it to the Npgsql format. Local dev keeps using appsettings.json.
+// Production / cloud: accept a single DATABASE_URL env var (Render / Neon style)
+// and translate it to the Npgsql format. Local dev reads from appsettings.json
+// or appsettings.Local.json.
 var dbUrlConn = DatabaseUrlParser.FromEnvironment();
 if (dbUrlConn is not null)
 {
@@ -45,10 +53,9 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateStoreValidator>();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// ---- CORS (configurable; supports comma-separated list in env var) ----------
+// ---- CORS (configurable; supports comma-separated list) ---------------------
 const string CorsPolicy = "ConfiguredCors";
-var allowedOrigins = (builder.Configuration["Cors:AllowedOrigins"]
-    ?? "http://localhost:4200")
+var allowedOrigins = (builder.Configuration["Cors:AllowedOrigins"] ?? "http://localhost:4200")
     .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
 
 builder.Services.AddCors(options =>
@@ -59,14 +66,13 @@ builder.Services.AddCors(options =>
         .AllowAnyMethod());
 });
 
-// Forwarded headers (Render terminates TLS at the proxy).
-//builder.Services.Configure<Microsoft.AspNetCore.HttpOverrides.ForwardedHeadersOptions>(o =>
-//{
-//    o.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor
-//                       | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
-//    o.KnownNetworks.Clear();
-//    o.KnownProxies.Clear();
-//});
+// Forwarded headers (Render terminates TLS at its proxy).
+builder.Services.Configure<ForwardedHeadersOptions>(o =>
+{
+    o.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    o.KnownNetworks.Clear();
+    o.KnownProxies.Clear();
+});
 
 var app = builder.Build();
 
@@ -103,6 +109,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.MapGet("/health", () => Results.Ok(new { status = "ok", time = DateTime.UtcNow }));
-app.MapGet("/", () => Results.Redirect("/swagger"));
 
-app.Run();
+// ---- Start the host ---------------------------------------------------------
+// Blocks until shutdown signal (Ctrl+C, SIGTERM). Without this, the app exits
+// silently after migrations and the prompt returns to the shell.
+await app.RunAsync();

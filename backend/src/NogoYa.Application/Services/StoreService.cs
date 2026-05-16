@@ -17,10 +17,34 @@ public class StoreService : IStoreService
     public StoreService(IUnitOfWork uow, IMapper mapper, ILogger<StoreService> logger)
     { _uow = uow; _mapper = mapper; _logger = logger; }
 
+    // Defensive cap: clients cannot request larger pages than this, regardless of input.
+    private const int MaxPageSize = 25;
+
     public async Task<Result<IReadOnlyList<StoreDto>>> GetAllAsync(CancellationToken ct = default)
     {
         var stores = await _uow.Stores.GetActiveAsync(ct);
         return Result.Success(_mapper.Map<IReadOnlyList<StoreDto>>(stores));
+    }
+
+    public async Task<Result<PagedResult<StoreDto>>> SearchAsync(StoreFilterDto filter, CancellationToken ct = default)
+    {
+        // Hard-cap pageSize regardless of what the client sends. Page is also normalized.
+        var safeFilter = filter with
+        {
+            Page = filter.Page <= 0 ? 1 : filter.Page,
+            PageSize = filter.PageSize is <= 0 or > MaxPageSize ? MaxPageSize : filter.PageSize
+        };
+
+        var paged = await _uow.Stores.SearchAsync(safeFilter, ct);
+        var items = _mapper.Map<IReadOnlyList<StoreDto>>(paged.Items);
+
+        return Result.Success(new PagedResult<StoreDto>
+        {
+            Items = items,
+            Page = paged.Page,
+            PageSize = paged.PageSize,
+            TotalItems = paged.TotalItems
+        });
     }
 
     public async Task<Result<StoreDto>> GetByIdAsync(Guid id, CancellationToken ct = default)

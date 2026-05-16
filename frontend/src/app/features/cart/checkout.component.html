@@ -1,0 +1,43 @@
+<h1 class="text-3xl font-semibold tracking-tight text-stone-900 mb-6">Finalizar compra</h1>
+
+@if (cart.lines().length === 0) {
+  <div class="bg-white rounded-2xl border border-stone-200 p-12 text-center">
+    <p class="text-stone-600">Tu carrito está vacío.</p>
+    <a mat-flat-button color="primary" routerLink="/products" class="!mt-4">Explorar productos</a>
+  </div>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()"
+        class="bg-white rounded-2xl border border-stone-200 p-6 max-w-xl space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <mat-form-field>
+        <mat-label>Nombre</mat-label>
+        <input matInput formControlName="customerName" required />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Email</mat-label>
+        <input matInput type="email" formControlName="customerEmail" required />
+      </mat-form-field>
+      <mat-form-field>
+        <mat-label>Teléfono</mat-label>
+        <input matInput formControlName="customerPhone" />
+      </mat-form-field>
+      <mat-form-field class="md:col-span-2">
+        <mat-label>Dirección de envío</mat-label>
+        <input matInput formControlName="shippingAddress" />
+      </mat-form-field>
+      <mat-form-field class="md:col-span-2">
+        <mat-label>Notas</mat-label>
+        <textarea matInput formControlName="notes" rows="3"></textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="flex justify-between border-t border-stone-200 pt-4">
+      <span class="text-stone-600">Total a pagar</span>
+      <strong class="text-stone-900">{{ cart.total() | currency:'ARS':'symbol-narrow':'1.0-0' }}</strong>
+    </div>
+
+    <button mat-flat-button color="primary" class="w-full" [disabled]="form.invalid || submitting()">
+      {{ submitting() ? 'Procesando…' : 'Confirmar pedido' }}
+    </button>
+  </form>
+}

@@ -1,0 +1,30 @@
+<header class="mb-8">
+  <h1 class="text-3xl font-semibold tracking-tight text-stone-900">Comercios de Nogoyá</h1>
+  <p class="text-stone-600 mt-1">Explorá los negocios locales adheridos a Nogo-Ya.</p>
+</header>
+
+@if (loading()) {
+  <div class="flex justify-center py-10"><mat-spinner diameter="36"></mat-spinner></div>
+} @else {
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    @for (store of stores(); track store.id) {
+      <a [routerLink]="['/stores', store.slug]"
+         class="no-underline bg-white rounded-2xl border border-stone-200 hover:border-brand-300 transition-colors p-5 block">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center flex-shrink-0">
+            <mat-icon>storefront</mat-icon>
+          </div>
+          <div class="min-w-0">
+            <h3 class="font-medium text-stone-900">{{ store.name }}</h3>
+            <p class="text-sm text-stone-600 mt-1 line-clamp-2">
+              {{ store.description || 'Comercio local en Nogoyá.' }}
+            </p>
+            <p class="mt-3 text-xs text-stone-500">{{ store.productsCount }} productos</p>
+          </div>
+        </div>
+      </a>
+    } @empty {
+      <p class="text-stone-500">Todavía no hay comercios cargados.</p>
+    }
+  </div>
+}

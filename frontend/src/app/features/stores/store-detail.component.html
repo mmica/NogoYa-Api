@@ -1,0 +1,37 @@
+@if (loading()) {
+  <div class="flex justify-center py-10"><mat-spinner diameter="36"></mat-spinner></div>
+} @else if (store()) {
+  <section class="bg-white rounded-2xl border border-stone-200 p-6 mb-8">
+    <div class="flex items-start gap-4">
+      <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center flex-shrink-0">
+        <mat-icon>storefront</mat-icon>
+      </div>
+      <div class="flex-1">
+        <h1 class="text-2xl font-semibold tracking-tight text-stone-900">{{ store()!.name }}</h1>
+        <p class="text-stone-600 mt-1">{{ store()!.description }}</p>
+        @if (store()!.address) {
+          <p class="text-stone-500 text-sm mt-2 flex items-center gap-1">
+            <mat-icon class="!text-base !w-4 !h-4">place</mat-icon>
+            {{ store()!.address }}
+          </p>
+        }
+      </div>
+    </div>
+  </section>
+
+  <div class="flex items-center justify-between mb-4 gap-3 flex-wrap">
+    <h2 class="text-lg font-medium text-stone-900">Productos</h2>
+    <button mat-flat-button color="primary" (click)="openCreateProduct()">
+      <mat-icon>add_shopping_cart</mat-icon>
+      Nuevo producto
+    </button>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    @for (p of products(); track p.id) {
+      <app-product-card [product]="p"></app-product-card>
+    } @empty {
+      <p class="text-stone-500">Este comercio aún no publicó productos.</p>
+    }
+  </div>
+}
